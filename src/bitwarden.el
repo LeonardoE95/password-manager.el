@@ -282,6 +282,7 @@ a string of the output"
   (run-at-time bw/clipboard-timeout nil
 	       (lambda ()
 		 (gui-set-selection 'CLIPBOARD "")
+		 (message "Clipboard cleaned!")
 		 ))
   )
 

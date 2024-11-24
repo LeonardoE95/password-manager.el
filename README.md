@@ -1,6 +1,6 @@
 # Password-Manager.el
 
-This repositories contain simple abstractions that can be used to
+This repository contains simple abstractions that can be used to
 interact with different password managers within the comfort of
 Emacs. For each password manager, a simple `transient` based interface
 will be offered to ease out the interaction flows.
@@ -49,7 +49,7 @@ considerations have driven the development.
 - It was decided that the `kill-ring` was not an appropriate data
   structure to leave sensitive data. Therefore, the system clipboard
   is used instead and it is cleaned one minute after sensitive data
-  has been put into it. I'm still not sure about this choice.
+  has been put into it. (I'm still not sure about this choice.)
   
 - The password is sent to the `bw` process using the STDIN channel
   instead of using the command line.
