@@ -57,3 +57,13 @@ considerations have driven the development.
 If you find that I'm missing something, of if you have insights that
 can question these considerations, please let me know by opening an
 issue.
+
+# TODOs
+
+List of things that I need to fix:
+
+- When calling `bw/load-item` I should check if the list of loaded
+  items is still valid, and if its been cleaned I need to re-download
+  it. This step could require unlocking the vault or doing a new login.
+
+- Catch error situations throughout the code.
