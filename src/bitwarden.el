@@ -31,6 +31,7 @@
 (require 'seq)
 (require 'timer)
 (require 'select)
+(require 'ivy)
 
 ;; --------------------------
 
