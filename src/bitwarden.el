@@ -48,6 +48,8 @@
   "Timeout parameter that determines after how much time the vault is locked.")
 (defvar bw/item-timeout "5 minutes"
   "Timeout parameter that determines after how much time the loaded item is removed from memory.")
+(defvar bw/clipboard-timeout "1 minutes"
+  "Timeout parameter that determines after how much time the system clipboard is cleaned.")
 
 (defvar bw/msg-error "Username or password is incorrect. Try again."
   "Message error used to determine if the login attempt was succesful or not.")
@@ -277,6 +279,10 @@ a string of the output"
 (defun bw/copy-to-clipboard (data)
   "Expose data to outside system by copying into the system clipboard."
   (gui-set-selection 'CLIPBOARD data)
+  (run-at-time bw/clipboard-timeout nil
+	       (lambda ()
+		 (gui-set-selection 'CLIPBOARD "")
+		 ))
   )
 
 ;; --------------------------
