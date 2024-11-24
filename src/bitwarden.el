@@ -386,8 +386,6 @@ is saved."
 	  ("3" "Read password" bw/read-password)
 	  ("4" "Read URI" bw/read-uris)		  
 	  ]
-
-  my/tool-system-management-ui
   )
 
 ;; ------------------------------------------------------------------------------------
