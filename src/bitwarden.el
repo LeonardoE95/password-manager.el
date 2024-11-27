@@ -177,8 +177,9 @@ a string of the output"
 
 (defun bw/vault-unlock ()
   (interactive)
-  (let* ((bw-password (read-passwd "Master Password: "))
-	 (bw-token (bw/cmd-anon-to-string (format "bw unlock %s --raw "bw-password)))
+  (let* ((bw-password (read-passwd "Unlock vault: "))
+	 ;; TODO: do not pass password in CMDLINE
+	 (bw-token (bw/cmd-anon-to-string (format "unlock '%s' --raw " bw-password)))
 	 )
 
     (setq bw/vault nil)
