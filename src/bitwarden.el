@@ -177,15 +177,32 @@ a string of the output"
 
 (defun bw/vault-unlock ()
   (interactive)
+  (defun bw/handle-unlock (proc output)
+    "Handle output from the unlock procedure."
+    (when (not (string-match-p (regexp-quote "Master password") output))
+      (if (not (or (string-match-p (regexp-quote bw/msg-error) output)
+		   (string-match-p (regexp-quote bw/msg-already-logged) output)))
+	  (progn
+	    ;; only set bw token in case of successful
+	    (message "Vault unlocked!")
+	    (setq bw/token output)
+	    (setq bw/vault nil)
+	    (run-at-time bw/vault-timeout nil (lambda () (bw/vault-lock) ))
+	    )
+	(message "Could not unlock vault: %s" output)
+	)
+      )
+    )  
   (let* ((bw-password (read-passwd "Unlock vault: "))
-	 ;; TODO: do not pass password in CMDLINE
-	 (bw-token (bw/cmd-anon-to-string (format "unlock '%s' --raw " bw-password)))
+	 (process-name "bw")
+	 (buffer-name "*bw*")
+	 (process (start-process process-name buffer-name "bw" "unlock" "--raw"))
 	 )
 
-    (setq bw/vault nil)
-    (setq bw/token bw-token)
+    (set-process-filter process #'bw/handle-unlock)
+    (process-send-string process (format "%s\n" bw-password))
+    (process-send-eof process)
     )
-  (message "Vault unlocked!")
   )
 
 ;; --------------------------
