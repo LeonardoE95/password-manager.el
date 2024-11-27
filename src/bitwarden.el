@@ -410,8 +410,8 @@ is saved."
 	  ]
 
   [:class transient-row ""
-	  ("Items #:"  (lambda () (format "%d" (length bw/item-names))) (lambda () (interactive) ()))
-	  ("Item loaded:" (lambda () (if bw/item-curr (bw/item-label bw/item-curr) "nil" )) (lambda () (interactive) ()))
+	  ("Items#:"  (lambda () (format "%d" (length bw/item-names))) (lambda () (interactive) ()))
+	  ("Item:" (lambda () (if bw/item-curr (bw/item-label bw/item-curr) "nil" )) (lambda () (interactive) ()))
 	  ]
   ;; ----------------------------------  
 
@@ -426,18 +426,19 @@ is saved."
 	  ("l" "Lock Vault" bw/vault-lock)
 	  ("u" "Unlock Vault" bw/vault-unlock)
 	  ]
-  ;; ----------------------------------  
-  ;; Item Commands
-  [:class transient-row "Bitwarden -> Items\n"
-	  ("i" "Load Item" bw/load-item)
-	  ("c" "Clear Item" (lambda () (interactive) (setq bw/item-curr nil)))
-	  ]
 
   [:class transient-row ""
-	  ("1" "Read item" bw/read-item)
+	  ("i" "Load Item" bw/load-item)
+	  ]  
+
+  ;; ----------------------------------  
+  ;; Item Commands
+
+  [:class transient-row "Bitwarden -> Items\n"
+	  ("1" "Read password" bw/read-password)
 	  ("2" "Read username" bw/read-username)
-	  ("3" "Read password" bw/read-password)
-	  ("4" "Read URI" bw/read-uris)		  
+	  ("3" "Read URI" bw/read-uris)		  	  
+	  ("4" "Read item" bw/read-item)
 	  ]
   )
 
