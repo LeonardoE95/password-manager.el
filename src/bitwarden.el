@@ -114,10 +114,9 @@ a string of the output"
       )
     )
 
-  ;; if currently there is a token, make sure we're logged out so as
-  ;; to not interfere with previously existing sessions
-  (when bw/token
-    (bw/logout))
+  ;; make sure we're logged out to not interfere with
+  ;; existing sessions
+  (bw/logout)
 
   ;; Initialize values regardless of login outcome
   (progn
@@ -211,9 +210,14 @@ a string of the output"
 (defun bw/select-item ()
   (interactive)
 
+  ;; if the session is expired, we have to login again
   (when (not (bw/session-check))
-    (message "Session is over, log again!")
-    (bw/login)
+    (message "Session is over")
+    (bw/login))
+
+  ;; if item list is expired, we have to download it again
+  (when (not bw/item-names)
+    (bw/load-items-names)
     )
 
   (let* ((selected-name (ivy-read "Name: " bw/item-names))
