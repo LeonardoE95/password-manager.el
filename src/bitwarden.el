@@ -106,6 +106,10 @@ a string of the output"
 	    ;; load items names immediately so we save time later on
 	    (bw/load-items-names)
 	    (message "Loaded item names!")
+
+	    ;; immediately perform a full flow after the first login
+	    ;; to speed things up
+	    (bw/execute-flow)
 	    )
 	(progn
 	  (message "Could not log: %s" output)
@@ -178,6 +182,42 @@ a string of the output"
     (setq bw/token bw-token)
     )
   (message "Vault unlocked!")
+  )
+
+;; --------------------------
+
+(defun bw/execute-flow ()
+  "Execute specific flow of actions by interactivly asking user what
+to do. This is executed as soon as a login is made to speed up
+the first flow."
+  (let* ((ivy-sort-functions-alist nil)
+	 (action (read (ivy-read "Select action: " '(none password uri+password))))
+	 )
+
+    (cond
+     ;; no action, simply return
+     ((eq action 'none)
+      nil
+      )
+
+     ;; load an item interactively and read password
+     ((eq action 'password)
+      (progn
+	(bw/load-item)
+	(bw/read-password)
+	)
+      )
+
+     ;; load an item interactively and read password
+     ((eq action 'uri+password)
+      (progn
+	(bw/load-item)
+	(bw/read-uris)
+	)
+      )
+     )
+
+    )
   )
 
 ;; --------------------------
