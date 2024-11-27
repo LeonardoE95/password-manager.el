@@ -71,12 +71,14 @@
 (defun bw/cmd-anon-to-string (cmd)
   "Execute a bitwarden command without the session token and return
 a string of the output"
+  ;; TODO: add validation 
   (shell-command-to-string (format "%s %s" bw/binpath cmd))
   )
 
 (defun bw/cmd-auth-to-string (cmd)
   "Execute a bitwarden command using the session token saved
  'bw/token' and return a string of the output"
+  ;; TODO: add validation 
   (with-environment-variables (("BW_SESSION" bw/token))
     (shell-command-to-string (format "%s %s" bw/binpath cmd))
     )
