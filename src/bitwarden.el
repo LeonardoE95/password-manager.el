@@ -138,6 +138,9 @@ a string of the output"
 	 (buffer-name "*bw*")
 	 (process (start-process process-name buffer-name "bw" "login" bw-email "--raw"))
 	 )
+
+    ;; save email for next login
+    (setq bw/email bw-email)
     ;; 
     ;; send password without putting it into the cmdline to avoid
     ;; exposure of confidential data
