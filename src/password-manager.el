@@ -36,7 +36,7 @@
 (transient-define-prefix pm-ui ()
   [:class transient-row "Password Managers \n"
 	  ("1" "bitwarden" bw-ui)
-	  ("2" "keepass" my/grep)
+	  ;; ("2" "keepass" )
 	  ]  
   )
 
