@@ -3,7 +3,7 @@
 ;; Copyright (C) 2024 Leonardo Tamiano
 
 ;; Author: Leonardo Tamiano <leonardotamiano95@gmail.com>
-;; Homepage: https://github.com/LeonardoE95/bitwarden.el
+;; Homepage: https://github.com/LeonardoE95/password-manager.el
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
