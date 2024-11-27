@@ -259,6 +259,11 @@ the first flow."
     (message "Session is over")
     (bw/login))
 
+  ;; if the vault is locked, we have to unlock it
+  (when bw/vault
+    (bw/vault-unlock)
+    )
+
   ;; if item list is expired, we have to download it again
   (when (not bw/item-names)
     (bw/load-items-names)
