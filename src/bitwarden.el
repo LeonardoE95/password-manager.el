@@ -101,6 +101,11 @@ a string of the output"
 	    (setq bw/token output)
 	    (setq bw/item-curr nil)
 
+	    ;; tell wrapper that currently the password manager to use
+	    ;; is bitwarden.el. Not sure if I want this variable to be
+	    ;; set here, but for now it will do.
+	    (setq pm/current-wrapper 'bw)
+
 	    ;; clear state after proper timeouts
 	    (run-at-time bw/vault-timeout nil (lambda () (bw/vault-lock) ))
 	    (run-at-time bw/session-timeout nil (lambda () (bw/logout) ))      

@@ -33,11 +33,32 @@
 
 ;; --------------------
 
+(defun pm/read-password ()
+  (interactive)
+  )
+
+(defun pm/read-username ()
+  (interactive)
+  )
+
+(defun pm/read-uris ()
+  (interactive)
+  )
+
+;; --------------------
+
 (transient-define-prefix pm-ui ()
+  [:class transient-row "Quick Action \n"
+	  ("1" "Load new" bw-ui)
+	  ("2" "password" bw-ui)
+	  ("3" "username" bw-ui)
+	  ("4" "URIs" bw-ui)
+	  ]
+  
   [:class transient-row "Password Managers \n"
-	  ("1" "bitwarden" bw-ui)
-	  ;; ("2" "keepass" )
-	  ]  
+	  ("C-c 1" "bitwarden" bw-ui)
+	  ("C-c 2" "keepass" kp-ui)
+	  ]
   )
 
 ;; --------------------
