@@ -20,13 +20,13 @@
 
 ;; ------------------------------------------------------------------------------------
 
-;; providers are defined in the providers directory. Each provider is
-;; implement in a .el file
+;; providers are defined in the providers directory, where each
+;; provider is implemented in a .el file.
 (defvar pm/provider-implementation
   (seq-filter
    (lambda (file)
      (and (file-regular-p file) (string-suffix-p ".el" file)))
-   (directory-files "/home/leo/projects/GIT-PUBLIC/password-manager.el/src/providers" t)))
+   (directory-files (concat (file-name-directory load-file-name) "/providers") t)))
 
 ;; once the list has been computed, load it in the current Emacs image
 (dolist (provider pm/provider-implementation)
