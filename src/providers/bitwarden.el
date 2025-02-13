@@ -19,7 +19,7 @@
 ;; along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 ;;
-;; This is an extremely simple Emacs wrapper over 'bw', the official
+;; This is an extremely simple Emacs wrapper over 'bitwarden', the official
 ;; CLI client for bitwarden. Currently, only read access is supported
 ;; and one time at a time can be loaded to avoid exposure of sensitive
 ;; data.
@@ -35,88 +35,88 @@
 
 ;; --------------------------
 
-(defvar bw/binpath "/usr/bin/bw"
+(defvar bitwarden/binpath "bw"
   "Path to the bitwarden CLI binary")
 
-(defvar bw/email ""
+(defvar bitwarden/email ""
   "Email to use for login.")
 
 ;; timeout parameters
-(defvar bw/session-timeout "1 hour"
+(defvar bitwarden/session-timeout "1 hour"
   "Timeout parameter that determines after how much time the session is terminated.")
-(defvar bw/vault-timeout "30 minutes"
+(defvar bitwarden/vault-timeout "30 minutes"
   "Timeout parameter that determines after how much time the vault is locked.")
-(defvar bw/item-timeout "5 minutes"
+(defvar bitwarden/item-timeout "5 minutes"
   "Timeout parameter that determines after how much time the loaded item is removed from memory.")
-(defvar bw/clipboard-timeout "1 minutes"
+(defvar bitwarden/clipboard-timeout "1 minutes"
   "Timeout parameter that determines after how much time the system clipboard is cleaned.")
 
-(defvar bw/msg-error "Username or password is incorrect. Try again."
+(defvar bitwarden/msg-error "Username or password is incorrect. Try again."
   "Message error used to determine if the login attempt was succesful or not.")
-(defvar bw/msg-already-logged "You are already logged in"
+(defvar bitwarden/msg-already-logged "You are already logged in"
   "Message error used to determine if the login attempt was succesful or not.")
 
 ;; session data
-(defvar bw/token nil
+(defvar bitwarden/token nil
   "Contains token for current session.")
-(defvar bw/vault nil
+(defvar bitwarden/vault nil
   "Boolean that represent the state of the vault. t for locked, nil for unlocked.")
-(defvar bw/item-names nil
+(defvar bitwarden/item-names nil
   "List of strings, each of which represent an item in the bitwarden vault.")
-(defvar bw/item-curr nil
+(defvar bitwarden/item-curr nil
   "Stores currently loaded item.")
 
 ;; --------------------------
 
-(defun bw/cmd-anon-to-string (cmd)
+(defun bitwarden/cmd-anon-to-string (cmd)
   "Execute a bitwarden command without the session token and return
 a string of the output"
   ;; TODO: add validation
-  (shell-command-to-string (format "%s %s" bw/binpath cmd))
+  (shell-command-to-string (format "%s %s" bitwarden/binpath cmd))
   )
 
-(defun bw/cmd-auth-to-string (cmd)
+(defun bitwarden/cmd-auth-to-string (cmd)
   "Execute a bitwarden command using the session token saved
- 'bw/token' and return a string of the output"
+ 'bitwarden/token' and return a string of the output"
   ;; TODO: add validation
-  (with-environment-variables (("BW_SESSION" bw/token))
-    (shell-command-to-string (format "%s %s" bw/binpath cmd))
+  (with-environment-variables (("BW_SESSION" bitwarden/token))
+    (shell-command-to-string (format "%s %s" bitwarden/binpath cmd))
     )
   )
 
 ;; --------------------------
 
-(defun bw/login (&optional email password)
+(defun bitwarden/login (&optional email password)
   (interactive)
 
-  (defun bw/handle-login (proc output)
+  (defun bitwarden/handle-login (proc output)
     "Handle output from the login procedure."
     (when (not (string-match-p (regexp-quote "Master password") output))
-      (if (not (or (string-match-p (regexp-quote bw/msg-error) output)
-                   (string-match-p (regexp-quote bw/msg-already-logged) output)))
+      (if (not (or (string-match-p (regexp-quote bitwarden/msg-error) output)
+                   (string-match-p (regexp-quote bitwarden/msg-already-logged) output)))
           (progn
             (message "Succesfully logged in!")
 
             ;; only set bw token in case of successful
-            (setq bw/token output)
-            (setq bw/item-curr nil)
+            (setq bitwarden/token output)
+            (setq bitwarden/item-curr nil)
 
             ;; tell wrapper that currently the password manager to use
             ;; is bitwarden.el. Not sure if I want this variable to be
             ;; set here, but for now it will do.
-            (setq pm/current-wrapper 'bw)
+            (setq pm/current-wrapper 'bitwarden)
 
             ;; clear state after proper timeouts
-            (run-at-time bw/vault-timeout nil (lambda () (bw/vault-lock) ))
-            (run-at-time bw/session-timeout nil (lambda () (bw/logout) ))
+            (run-at-time bitwarden/vault-timeout nil (lambda () (bitwarden/vault-lock) ))
+            (run-at-time bitwarden/session-timeout nil (lambda () (bitwarden/logout) ))
 
             ;; load items names immediately so we save time later on
-            (bw/load-items-names)
+            (bitwarden/load-items-names)
             (message "Loaded item names!")
 
             ;; immediately perform a full flow after the first login
             ;; to speed things up
-            (bw/execute-flow)
+            (bitwarden/execute-flow)
             )
         (progn
           (message "Could not log: %s" output)
@@ -127,94 +127,94 @@ a string of the output"
 
   ;; make sure we're logged out to not interfere with
   ;; existing sessions
-  (bw/logout)
+  (bitwarden/logout)
 
   ;; Initialize values regardless of login outcome
   (progn
-    (setq bw/token nil)
-    (setq bw/vault nil)
-    (setq bw/item-names nil)
-    (setq bw/item-curr nil)
+    (setq bitwarden/token nil)
+    (setq bitwarden/vault nil)
+    (setq bitwarden/item-names nil)
+    (setq bitwarden/item-curr nil)
     )
 
-  (let* ((bw-email (if email email
-                     (read-from-minibuffer "Email: " (if bw/email bw/email ""))))
-         (bw-password (if password password
+  (let* ((bitwarden-email (if email email
+                     (read-from-minibuffer "Email: " (if bitwarden/email bitwarden/email ""))))
+         (bitwarden-password (if password password
                         (read-passwd "Master Password: ")))
-         (process-name "bw")
-         (buffer-name "*bw*")
-         (process (start-process process-name buffer-name "bw" "login" bw-email "--raw"))
+         (process-name "bitwarden")
+         (buffer-name "*bitwarden*")
+         (process (start-process process-name buffer-name "bw" "login" bitwarden-email "--raw"))
          )
 
     ;; save email for next login
-    (setq bw/email bw-email)
+    (setq bitwarden/email bitwarden-email)
     ;;
     ;; send password without putting it into the cmdline to avoid
     ;; exposure of confidential data
     ;;
-    (set-process-filter process #'bw/handle-login)
-    (process-send-string process (format "%s\n" bw-password))
+    (set-process-filter process #'bitwarden/handle-login)
+    (process-send-string process (format "%s\n" bitwarden-password))
     (process-send-eof process)
     )
   )
 
-(defun bw/logout ()
+(defun bitwarden/logout ()
   (interactive)
-  (bw/cmd-auth-to-string (format "logout"))
-  (setq bw/token nil)
-  (setq bw/vault nil)
+  (bitwarden/cmd-auth-to-string (format "logout"))
+  (setq bitwarden/token nil)
+  (setq bitwarden/vault nil)
   (message "Logged out!")
   )
 
-(defun bw/session-check ()
+(defun bitwarden/session-check ()
   (interactive)
   (not (string=
    "You are not logged in."
-   (bw/cmd-auth-to-string (format "login --check"))
+   (bitwarden/cmd-auth-to-string (format "login --check"))
    ))
   )
 
-(defun bw/vault-lock ()
+(defun bitwarden/vault-lock ()
   (interactive)
-  (bw/cmd-auth-to-string (format "lock"))
-  (setq bw/vault t)
-  (setq bw/item-curr nil)
+  (bitwarden/cmd-auth-to-string (format "lock"))
+  (setq bitwarden/vault t)
+  (setq bitwarden/item-curr nil)
   (message "Vault locked!")
   )
 
-(defun bw/vault-unlock ()
+(defun bitwarden/vault-unlock ()
   (interactive)
-  (defun bw/handle-unlock (proc output)
+  (defun bitwarden/handle-unlock (proc output)
     "Handle output from the unlock procedure."
     (when (not (string-match-p (regexp-quote "Master password") output))
-      (if (not (or (string-match-p (regexp-quote bw/msg-error) output)
-                   (string-match-p (regexp-quote bw/msg-already-logged) output)))
+      (if (not (or (string-match-p (regexp-quote bitwarden/msg-error) output)
+                   (string-match-p (regexp-quote bitwarden/msg-already-logged) output)))
           (progn
-            ;; only set bw token in case of successful
+            ;; only set bitwarden token in case of successful
             (message "Vault unlocked!")
-            (setq bw/token output)
-            (setq bw/vault nil)
-            (run-at-time bw/vault-timeout nil (lambda () (bw/vault-lock) ))
+            (setq bitwarden/token output)
+            (setq bitwarden/vault nil)
+            (run-at-time bitwarden/vault-timeout nil (lambda () (bitwarden/vault-lock) ))
             )
         (message "Could not unlock vault: %s" output)
         )
       )
     )
-  (let* ((bw-password (read-passwd "Unlock vault: "))
+  (let* ((bitwarden-password (read-passwd "Unlock vault: "))
          (process-name "bw")
-         (buffer-name "*bw*")
+         (buffer-name "*bitwarden*")
          (process (start-process process-name buffer-name "bw" "unlock" "--raw"))
          )
 
-    (set-process-filter process #'bw/handle-unlock)
-    (process-send-string process (format "%s\n" bw-password))
+    (set-process-filter process #'bitwarden/handle-unlock)
+    (process-send-string process (format "%s\n" bitwarden-password))
     (process-send-eof process)
     )
   )
 
 ;; --------------------------
 
-(defun bw/execute-flow ()
+(defun bitwarden/execute-flow ()
   "Execute specific flow of actions by interactivly asking user what
 to do. This is executed as soon as a login is made to speed up
 the first flow."
@@ -231,16 +231,16 @@ the first flow."
      ;; load an item interactively and read password
      ((eq action 'password)
       (progn
-        (bw/load-item)
-        (bw/read-password)
+        (bitwarden/load-item)
+        (bitwarden/read-password)
         )
       )
 
      ;; load an item interactively and read password
      ((eq action 'uri+password)
       (progn
-        (bw/load-item)
-        (bw/read-uris)
+        (bitwarden/load-item)
+        (bitwarden/read-uri)
         )
       )
      )
@@ -250,51 +250,51 @@ the first flow."
 
 ;; --------------------------
 
-(defun bw/load-items-names ()
+(defun bitwarden/load-items-names ()
   (interactive)
-  (let* ((bw-items (json-read-from-string (bw/cmd-auth-to-string (format "list items"))))
-         (bw-names (mapcar (lambda (entry) (assoc-default 'name entry)) bw-items))
+  (let* ((bitwarden-items (json-read-from-string (bitwarden/cmd-auth-to-string (format "list items"))))
+         (bitwarden-names (mapcar (lambda (entry) (assoc-default 'name entry)) bitwarden-items))
          )
-    (setq bw/item-names bw-names)
+    (setq bitwarden/item-names bitwarden-names)
     )
   )
 
-(defun bw/load-item ()
+(defun bitwarden/load-item ()
   (interactive)
-  (setq bw/item-curr (bw/select-item))
-  (run-at-time bw/item-timeout nil
+  (setq bitwarden/item-curr (bitwarden/select-item))
+  (run-at-time bitwarden/item-timeout nil
                (lambda ()
-                 (setq bw/item-curr nil)
+                 (setq bitwarden/item-curr nil)
                  ))
 
-  (run-at-time bw/item-timeout nil
+  (run-at-time bitwarden/item-timeout nil
                (lambda ()
-                 (setq bw/item-curr nil)
+                 (setq bitwarden/item-curr nil)
                  ))
 
-  bw/item-curr
+  bitwarden/item-curr
   )
 
-(defun bw/select-item ()
+(defun bitwarden/select-item ()
   (interactive)
 
   ;; if the session is expired, we have to login again
-  (when (not (bw/session-check))
+  (when (not (bitwarden/session-check))
     (message "Session is over")
-    (bw/login))
+    (bitwarden/login))
 
   ;; if the vault is locked, we have to unlock it
-  (when bw/vault
-    (bw/vault-unlock)
+  (when bitwarden/vault
+    (bitwarden/vault-unlock)
     )
 
   ;; if item list is expired, we have to download it again
-  (when (not bw/item-names)
-    (bw/load-items-names)
+  (when (not bitwarden/item-names)
+    (bitwarden/load-items-names)
     )
 
-  (let* ((selected-name (ivy-read "Name: " bw/item-names))
-         (output-cmd (bw/cmd-auth-to-string (format "list items --search %s" selected-name)))
+  (let* ((selected-name (ivy-read "Name: " bitwarden/item-names))
+         (output-cmd (bitwarden/cmd-auth-to-string (format "list items --search %s" selected-name)))
          (selected-item (if (string= "You are not logged in." output-cmd)
                             nil
                           (seq-filter
@@ -309,35 +309,35 @@ the first flow."
 
 ;; --------------------------
 
-(defun bw/item-name (item)
+(defun bitwarden/item-name (item)
   "Extract item name from the item structure."
   (if item
       (assoc-default 'name (car item))
     nil)
   )
 
-(defun bw/item-id (item)
+(defun bitwarden/item-id (item)
   "Extract item id from the item structure."
   (if item
       (assoc-default 'id (car item))
     nil)
   )
 
-(defun bw/item-username (item)
+(defun bitwarden/item-username (item)
   "Extract username from the item structure."
   (if item
       (assoc-default 'username (assoc-default 'login (car item)))
     nil)
   )
 
-(defun bw/item-password (item)
+(defun bitwarden/item-password (item)
   "Extract password from the item structure."
   (if item
       (assoc-default 'password (assoc-default 'login (car item)))
     nil)
   )
 
-(defun bw/item-uris (item)
+(defun bitwarden/item-uris (item)
   "Extract URIs from the item structure."
   (if item
       (cl-coerce
@@ -346,17 +346,17 @@ the first flow."
     nil)
   )
 
-(defun bw/item-label (item)
+(defun bitwarden/item-label (item)
   "Compute simple string representation for showing the item loaded in the transient UI."
   (format "%s/%s"
-          (bw/item-name item)
-          (bw/item-username item))
+          (bitwarden/item-name item)
+          (bitwarden/item-username item))
   )
 
-(defun bw/copy-to-clipboard (data)
+(defun bitwarden/copy-to-clipboard (data)
   "Expose data to outside system by copying into the system clipboard."
   (gui-set-selection 'CLIPBOARD data)
-  (run-at-time bw/clipboard-timeout nil
+  (run-at-time bitwarden/clipboard-timeout nil
                (lambda ()
                  (gui-set-selection 'CLIPBOARD "")
                  (message "Clipboard cleaned!")
@@ -365,74 +365,74 @@ the first flow."
 
 ;; --------------------------
 
-(defun bw/read-item ()
+(defun bitwarden/read-item ()
   "Reads username and password from loaded item and saves them into
 the kill-ring. First, the username is saved, then, the password
 is saved."
   (interactive)
-  (let* ((bw-item (if bw/item-curr bw/item-curr
-                    (bw/load-item)))
-         (bw-item-username (bw/item-username bw-item))
-         (bw-item-password (bw/item-password bw-item))
+  (let* ((bitwarden-item (if bitwarden/item-curr bitwarden/item-curr
+                    (bitwarden/load-item)))
+         (bitwarden-item-username (bitwarden/item-username bitwarden-item))
+         (bitwarden-item-password (bitwarden/item-password bitwarden-item))
          )
-    (kill-new bw-item-username)
-    (kill-new bw-item-password)
+    (kill-new bitwarden-item-username)
+    (kill-new bitwarden-item-password)
     (message "Item copied in clipboard")
     )
   )
 
-(defun bw/read-uris ()
+(defun bitwarden/read-uri ()
   "Selects a URI from the loaded item URIs and saves it into the kill-ring."
   (interactive)
-  (let* ((bw-item (if bw/item-curr bw/item-curr
-                    (bw/load-item)))
-         (bw-item-uris (bw/item-uris bw-item))
+  (let* ((bitwarden-item (if bitwarden/item-curr bitwarden/item-curr
+                    (bitwarden/load-item)))
+         (bitwarden-item-uris (bitwarden/item-uris bitwarden-item))
          (uris (mapcar
                 (lambda (entry) (assoc-default 'uri entry))
-                bw-item-uris))
-         (bw-uri-selected (ivy-read "Select URI: " uris))
+                bitwarden-item-uris))
+         (bitwarden-uri-selected (ivy-read "Select URI: " uris))
          )
-    (bw/copy-to-clipboard bw-uri-selected)
+    (bitwarden/copy-to-clipboard bitwarden-uri-selected)
     (message "URI copied in clipboard")
     )
   )
 
-(defun bw/read-username ()
+(defun bitwarden/read-username ()
   "Reads username from loaded item and saves it into the kill-ring."
   (interactive)
-  (let* ((bw-item (if bw/item-curr bw/item-curr
-                    (bw/load-item)))
-         (bw-item-username (bw/item-username bw-item))
+  (let* ((bitwarden-item (if bitwarden/item-curr bitwarden/item-curr
+                    (bitwarden/load-item)))
+         (bitwarden-item-username (bitwarden/item-username bitwarden-item))
          )
-    (bw/copy-to-clipboard bw-item-username)
+    (bitwarden/copy-to-clipboard bitwarden-item-username)
     (message "Username copied in clipboard")
     )
   )
 
-(defun bw/read-password ()
+(defun bitwarden/read-password ()
   "Reads password from loaded item and saves it into the kill-ring."
   (interactive)
-  (let* ((bw-item (if bw/item-curr bw/item-curr
-                    (bw/load-item)))
-         (bw-item-password (bw/item-password bw-item))
+  (let* ((bitwarden-item (if bitwarden/item-curr bitwarden/item-curr
+                    (bitwarden/load-item)))
+         (bitwarden-item-password (bitwarden/item-password bitwarden-item))
          )
-    (bw/copy-to-clipboard bw-item-password)
+    (bitwarden/copy-to-clipboard bitwarden-item-password)
     (message "Password copied in clipboard")
     )
   )
 
 ;; ------------------------------------------------------------------------------------
 
-(transient-define-prefix bw-ui ()
+(transient-define-prefix bitwarden-ui ()
   "Simple transient UI to the wrappers."
 
   ;; ----------------------------------
   ;; Bitwarden State
   [:class transient-row "Bitwarden -> State\n"
-          ("Logged:" (lambda () (if bw/token "t" "nil")) (lambda () (interactive)))
-          ("Vault:" (lambda () (if bw/vault "Locked" "Unlocked")) (lambda () (interactive) ()))
-          ("Items#:"  (lambda () (format "%d" (length bw/item-names))) (lambda () (interactive) ()))
-          ("Item:" (lambda () (if bw/item-curr (bw/item-label bw/item-curr) "nil" )) (lambda () (interactive) ()))
+          ("Logged:" (lambda () (if bitwarden/token "t" "nil")) (lambda () (interactive)))
+          ("Vault:" (lambda () (if bitwarden/vault "Locked" "Unlocked")) (lambda () (interactive) ()))
+          ("Items#:"  (lambda () (format "%d" (length bitwarden/item-names))) (lambda () (interactive) ()))
+          ("Item:" (lambda () (if bitwarden/item-curr (bitwarden/item-label bitwarden/item-curr) "nil" )) (lambda () (interactive) ()))
           ]
 
   ;; ----------------------------------
@@ -440,20 +440,20 @@ is saved."
   ;; ----------------------------------
   ;; Session Commands
   [:class transient-row "Bitwarden -> Session Management\n"
-          ("e1" "Login" bw/login)
-          ("e2" "Logout" bw/logout)
-          ("e3" "Lock Vault" bw/vault-lock)
-          ("e4" "Unlock Vault" bw/vault-unlock)
-          ("e5" "Load Item" bw/load-item)
+          ("e1" "Login" bitwarden/login)
+          ("e2" "Logout" bitwarden/logout)
+          ("e3" "Lock Vault" bitwarden/vault-lock)
+          ("e4" "Unlock Vault" bitwarden/vault-unlock)
+          ("e5" "Load Item" bitwarden/load-item)
           ]
 
   ;; ----------------------------------
   ;; Item Commands
   [:class transient-row "Bitwarden -> Item\n"
-          ("1" "Read password" bw/read-password)
-          ("2" "Read username" bw/read-username)
-          ("3" "Read URI" bw/read-uris)
-          ("4" "Read item" bw/read-item)
+          ("1" "Read password" bitwarden/read-password)
+          ("2" "Read username" bitwarden/read-username)
+          ("3" "Read URI" bitwarden/read-uri)
+          ("4" "Read item" bitwarden/read-item)
           ]
   )
 

@@ -20,68 +20,69 @@
 ;;
 ;; ------------------------------------------------------------------------------------
 
-(defvar kp/binpath ""
+(defvar keepass/binpath ""
   "Path to the keepass CLI binary")
 
-(defvar kp/db ""
+(defvar keepass/db ""
   "Path to the keepass database file")
 
 ;; timeout parameters
-(defvar kb/session-timeout "1 hour"
+(defvar keepass/session-timeout "1 hour"
   "Timeout parameter that determines after how much time the session is terminated.")
-(defvar kb/item-timeout "5 minutes"
+(defvar keepass/item-timeout "5 minutes"
   "Timeout parameter that determines after how much time the loaded item is removed from memory.")
-(defvar kb/clipboard-timeout "1 minutes"
+(defvar keepass/clipboard-timeout "1 minutes"
   "Timeout parameter that determines after how much time the system clipboard is cleaned.")
 
-(defvar kb/msg-error "Username or password is incorrect. Try again."
+(defvar keepass/msg-error "Username or password is incorrect. Try again."
   "Message error used to determine if the login attempt was succesful or not.")
-(defvar kb/msg-already-logged "You are already logged in"
+(defvar keepass/msg-already-logged "You are already logged in"
   "Message error used to determine if the login attempt was succesful or not.")
 
-(defun kp/cmd-to-string (cmd)
+(defun keepass/cmd-to-string (cmd)
   ;; TODO: implement me
   )
 
 ;; ------------------------------------------------------------------------------------
 
-(defun kp/open-database (&optional db password)
+(defun keepass/open-database (&optional db password)
   ;; TODO: implement me
   )
 
-(defun kp/load-item-names ()
+(defun keepass/load-item-names ()
   ;; TODO: implement me
   )
 
-(defun kp/load-item ()
+(defun keepass/load-item ()
+  ;; TODO: implement me
+  (message "keepass/load-item")
+  )
+
+;; ------------------------------------------------------------------------------------
+
+(defun keepass/read-password ()
+  (interactive)
+  ;; TODO: implement me
+  )
+
+(defun keepass/read-username ()
+  (interactive)
+  ;; TODO: implement me
+  )
+
+(defun keepass/read-uris ()
+  (interactive)
+  ;; TODO: implement me
+  )
+
+(defun keepass/read-item ()
+  (interactive)
   ;; TODO: implement me
   )
 
 ;; ------------------------------------------------------------------------------------
 
-(defun kp/read-password ()
-  (interactive)
-  ;; TODO: implement me
-  )
-
-(defun kp/read-username ()
-  (interactive)
-  ;; TODO: implement me
-  )
-
-(defun kp/read-uris ()
-  (interactive)
-  ;; TODO: implement me
-  )
-
-(defun kp/read-item ()
-  (interactive)
-  ;; TODO: implement me
-  )
-
-;; ------------------------------------------------------------------------------------
-
-(transient-define-prefix kp-ui ()
+(transient-define-prefix keepass-ui ()
   "Simple transient UI to the wrappers."
 
   [:class transient-row "KeePass -> State\n"
@@ -91,10 +92,10 @@
           ]
 
   [:class transient-row "KeePass -> Items\n"
-          ("1" "Read password" kp/read-password)
-          ("2" "Read username" kp/read-username)
-          ("3" "Read URI" kp/read-uris)
-          ("4" "Read item" kp/read-item)
+          ("1" "Read password" keepass/read-password)
+          ("2" "Read username" keepass/read-username)
+          ("3" "Read URI" keepass/read-uris)
+          ("4" "Read item" keepass/read-item)
           ]
   )
 
