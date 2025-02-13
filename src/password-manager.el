@@ -22,6 +22,7 @@
 
 ;; import the implementation of the different wrappers
 (require 'bitwarden)
+(require 'keepass)
 
 ;; --------------------
 
@@ -49,16 +50,16 @@
 
 (transient-define-prefix pm-ui ()
   [:class transient-row "Quick Action \n"
-	  ("1" "Load new" bw-ui)
-	  ("2" "password" bw-ui)
-	  ("3" "username" bw-ui)
-	  ("4" "URIs" bw-ui)
-	  ]
-  
+          ("1" "Load new" bw-ui)
+          ("2" "password" bw-ui)
+          ("3" "username" bw-ui)
+          ("4" "URIs" bw-ui)
+          ]
+
   [:class transient-row "Password Managers \n"
-	  ("C-c 1" "bitwarden" bw-ui)
-	  ("C-c 2" "keepass" kp-ui)
-	  ]
+          ("C-c 1" "bitwarden" bw-ui)
+          ("C-c 2" "keepass" kp-ui)
+          ]
   )
 
 ;; --------------------

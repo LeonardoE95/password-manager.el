@@ -40,7 +40,7 @@
   "Message error used to determine if the login attempt was succesful or not.")
 
 (defun kp/cmd-to-string (cmd)
-  ;; TODO: implement me  
+  ;; TODO: implement me
   )
 
 ;; ------------------------------------------------------------------------------------
@@ -50,11 +50,11 @@
   )
 
 (defun kp/load-item-names ()
-  ;; TODO: implement me  
+  ;; TODO: implement me
   )
 
 (defun kp/load-item ()
-  ;; TODO: implement me  
+  ;; TODO: implement me
   )
 
 ;; ------------------------------------------------------------------------------------
@@ -85,17 +85,17 @@
   "Simple transient UI to the wrappers."
 
   [:class transient-row "KeePass -> State\n"
-	  ]
+          ]
 
   [:class transient-row "KeePass -> Session\n"
-	  ]
+          ]
 
   [:class transient-row "KeePass -> Items\n"
-	  ("1" "Read password" kp/read-password)
-	  ("2" "Read username" kp/read-username)
-	  ("3" "Read URI" kp/read-uris)		  	  
-	  ("4" "Read item" kp/read-item)
-	  ]
+          ("1" "Read password" kp/read-password)
+          ("2" "Read username" kp/read-username)
+          ("3" "Read URI" kp/read-uris)
+          ("4" "Read item" kp/read-item)
+          ]
   )
 
 ;; ------------------------------------------------------------------------------------
