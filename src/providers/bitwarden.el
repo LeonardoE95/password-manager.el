@@ -168,10 +168,10 @@ a string of the output"
 
 (defun bitwarden/session-check ()
   (interactive)
-  (not (string=
-   "You are not logged in."
-   (bitwarden/cmd-auth-to-string (format "login --check"))
-   ))
+  (and bitwarden/token
+       (not (string= "You are not logged in."
+                     (bitwarden/cmd-auth-to-string (format "login --check"))
+             )))
   )
 
 (defun bitwarden/vault-lock ()
@@ -277,34 +277,34 @@ the first flow."
 
 (defun bitwarden/select-item ()
   (interactive)
+  (if (not (bitwarden/session-check))
+      (progn
+        (message "Session is over")
+        (bitwarden/login))
+    (progn
+      ;; if the vault is locked, we have to unlock it
+      (when bitwarden/vault
+        (bitwarden/vault-unlock)
+        )
 
-  ;; if the session is expired, we have to login again
-  (when (not (bitwarden/session-check))
-    (message "Session is over")
-    (bitwarden/login))
+      ;; if item list is expired, we have to download it again
+      (when (not bitwarden/item-names)
+        (bitwarden/load-items-names)
+        )
 
-  ;; if the vault is locked, we have to unlock it
-  (when bitwarden/vault
-    (bitwarden/vault-unlock)
-    )
+      (let* ((selected-name (ivy-read "Name: " bitwarden/item-names))
+             (output-cmd (bitwarden/cmd-auth-to-string (format "list items --search %s" selected-name)))
+             (selected-item (if (string= "You are not logged in." output-cmd)
+                                nil
+                              (seq-filter
+                               (lambda (e) (string= (assoc-default 'name e) selected-name))
+                               (json-read-from-string output-cmd))))
+             )
 
-  ;; if item list is expired, we have to download it again
-  (when (not bitwarden/item-names)
-    (bitwarden/load-items-names)
-    )
-
-  (let* ((selected-name (ivy-read "Name: " bitwarden/item-names))
-         (output-cmd (bitwarden/cmd-auth-to-string (format "list items --search %s" selected-name)))
-         (selected-item (if (string= "You are not logged in." output-cmd)
-                            nil
-                          (seq-filter
-                           (lambda (e) (string= (assoc-default 'name e) selected-name))
-                           (json-read-from-string output-cmd))))
-         )
-
-    (message "Loaded item %s" selected-name)
-    selected-item
-    )
+        (message "Loaded item %s" selected-name)
+        selected-item
+        )
+      ))
   )
 
 ;; --------------------------

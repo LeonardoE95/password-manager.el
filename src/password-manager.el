@@ -40,10 +40,10 @@
    (lambda (file)
      (read (file-name-sans-extension (file-name-nondirectory file))))
    pm/provider-implementation)
-  "Value for the current wrapper")
+  "List of supported providers.")
 
 (defvar pm/current nil
-  "Value for the current wrapper")
+  "Value for the current wrapper.")
 
 ;; --------------------
 
@@ -121,7 +121,7 @@ order to update the database with the new item."
 
 (transient-define-prefix pm-ui ()
   [:class transient-row "Status \n"
-          ("Provider:" (lambda () pm/current) (lambda () (interactive)))
+          ("Provider:" (lambda () (if pm/current pm/current "nil")) (lambda () (interactive)))
           ("Item:" (lambda () (if bitwarden/item-curr (bitwarden/item-label bitwarden/item-curr) "nil" )) (lambda () (interactive)))
           ]
 
